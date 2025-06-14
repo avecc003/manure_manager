@@ -25,7 +25,7 @@ async def ping(ctx):
     await ctx.send("Pong! 🏓")
 
 # Command: Echo
-@bot.command()
+@bot.command(name="echo", description="Echo a message")
 async def echo(ctx, *, message: str):
     await ctx.send(message)
 
