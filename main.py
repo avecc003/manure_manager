@@ -8,30 +8,24 @@ from dotenv import load_dotenv
 load_dotenv()
 BOT_TOKEN = os.getenv("bot_token")
 
-# Intents are required to access certain gateway events
-intents = discord.Intents.default()
-intents.message_content = True  # Enable access to message content
 
-# Define bot prefix and intents
-bot = commands.Bot(command_prefix="!", intents=intents)
+class MyClient(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix="!", intents=discord.Intents.all())
+        self.tree = app_commands.CommandTree(self)
 
-# Event: Bot is ready
+    async def setup_hook(self):
+        self.tree.add_command(pong)  # Register the slash command
+
+bot = MyClient()
+
 @bot.event
 async def on_ready():
-    print(f"Bot is online! Logged in as {bot.user} (ID: {bot.user.id})")
+    print(f'Bot is online as {bot.user}')
+    await bot.tree.sync()  # Register commands with Discord
 
-# Command: Ping
-@bot.command()
-async def ping(ctx):
-    await ctx.send("Pong! 🏓")
+@app_commands.command(name="pong", description="Replies with Pong!")
+async def pong(interaction: discord.Interaction):
+    await interaction.response.send_message("Pong!")
 
-# Command: Echo
-@app_commands.command(name="echo", description="Echo a message")
-async def echo(ctx, *, message: str):
-    await ctx.send(message)
-
-if __name__ == "__main__":
-    if BOT_TOKEN:
-        bot.run(BOT_TOKEN)
-    else:
-        print("Error: DISCORD_BOT_TOKEN not set in environment variables.")
+bot.run(BOT_TOKEN)
