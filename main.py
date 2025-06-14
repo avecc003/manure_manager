@@ -1,5 +1,6 @@
 import discord
 import os
+from discord import app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -25,7 +26,7 @@ async def ping(ctx):
     await ctx.send("Pong! 🏓")
 
 # Command: Echo
-@bot.command(name="echo", description="Echo a message")
+@app_commands.command(name="echo", description="Echo a message")
 async def echo(ctx, *, message: str):
     await ctx.send(message)
 
