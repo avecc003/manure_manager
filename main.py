@@ -13,6 +13,7 @@ class MyBot(commands.Bot):
 
     async def setup_hook(self):
         await self.load_extension("cogs.pong")
+        await self.load_extension("cogs.poll")
         await self.tree.sync()  # Sync with Discord
 
 bot = MyBot()
