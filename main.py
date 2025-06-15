@@ -13,7 +13,7 @@ class MyBot(commands.Bot):
 
     async def setup_hook(self):
         # Register slash command
-        await self.load_extension('pong')
+        await self.load_extension('cogs.pong')
         await self.tree.sync()  # Sync with Discord
 
 @commands.command()
