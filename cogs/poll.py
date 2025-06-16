@@ -33,7 +33,7 @@ class Poll(commands.Cog):
         self.polls.append(message)
         
     @app_commands.command(name="poll_end", description="Ends the current poll")
-    async def end_last_poll(self, interaction: discord.Interaction):
+    async def poll_end(self, interaction: discord.Interaction):
         try:
             poll = self.polls.pop()        
             await interaction.response.send_message(f"Poll ended with {poll.results[0].emoji} as the result.")
