@@ -6,6 +6,7 @@ from datetime import timedelta, datetime
 class Poll(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.polls = []
 
     @app_commands.command(name="poll", description="Replies with a Poll, enter dates in MM/DD/YY!")
     @app_commands.describe(
@@ -57,6 +58,33 @@ class Poll(commands.Cog):
                 poll.add_answer(text=list_date.strftime("%m/%d (%A)"))
         
         await interaction.response.send_message(poll=poll)
+        
+    @app_commands.command(name="poll_default", description="Replies with a Poll!")
+    async def poll_default(self, interaction: discord.Interaction):
+        curr_date = datetime.datetime.now()
+        hours_left_in_day = 24 - curr_date.hour
+        today = datetime.datetime(curr_date.year, curr_date.month, curr_date.day + 1)
+        next_7_days = [today + timedelta(days=i) for i in range(7)]
+        
+        poll = discord.Poll(question="weekly poll", duration=timedelta(hours=hours_left_in_day), multiple=True )
+        for day in next_7_days:
+            poll.add_answer(text=day.strftime('%d/%m/%Y'))
+        message = await interaction.response.send_message(poll=poll)
+        self.polls.append(message)
+        
+    @app_commands.command(name="poll_end", description="Ends the current poll")
+    async def poll_end(self, interaction: discord.Interaction):
+        try:
+            poll = self.polls.pop()        
+            await interaction.response.send_message(f"Poll ended with {poll.results[0].emoji} as the result.")
+            await poll.end()
+        except:  
+            await interaction.response.send_message("No poll to end.")
+        
+    # @commands.Cog.listener()
+    # async def on_poll_end(self, poll, user) -> None:
+    #     await poll.message.edit(content=f"Poll ended with {poll.results[0].emoji} as the result.")
+    
 
 async def setup(bot):
     await bot.add_cog(Poll(bot))
