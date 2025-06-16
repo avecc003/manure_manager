@@ -29,18 +29,17 @@ class Poll(commands.Cog):
         poll = discord.Poll(question="weekly poll", duration=timedelta(hours=hours_left_in_day), multiple=True )
         for day in next_7_days:
             poll.add_answer(text=day.strftime('%d/%m/%Y'))
-        await interaction.response.send_message(poll=poll)
-        self.polls.append(poll)
+        message = await interaction.response.send_message(poll=poll)
+        self.polls.append(message)
         
     @app_commands.command(name="poll_end", description="Ends the current poll")
-    async def poll_end(self, interaction: discord.Interaction):
-        if len(self.polls) > 0:
-            poll = self.polls.pop()
+    async def end_last_poll(self, interaction: discord.Interaction):
+        try:
+            poll = self.polls.pop()        
             await interaction.response.send_message(f"Poll ended with {poll.results[0].emoji} as the result.")
-            return
-        await interaction.response.send_message("No polls to end.")
-        
-        
+            await poll.end()
+        except:  
+            await interaction.response.send_message("No poll to end.")
         
     # @commands.Cog.listener()
     # async def on_poll_end(self, poll, user) -> None:
