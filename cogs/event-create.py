@@ -23,9 +23,9 @@ class EventCreate(commands.Cog):
     @app_commands.command(name="event-create", description="Create event with mentions for easy planning!")
     @app_commands.describe(
         name="Title",
-        start_time="Start time in MM/DD/YY",
-        end_time="End time in MM/DD/YY",
-        location="Optional location for external event",
+        start_time="Start time in MM/DD/YY HH:MM(am/pm), or MM/DD/YY HH(am/pm)",
+        end_time="End time in MM/DD/YY HH:MM(am/pm), or MM/DD/YY HH(am/pm)",
+        location="Location for external event",
         description="Description"
         )
     async def eventCreate(self, interaction: discord.Interaction, name: str, start_time: str, end_time: str, location: str, description: str=None):
@@ -100,6 +100,7 @@ class EventCreate(commands.Cog):
         })
 
         print(event_data)
+        print(f'GUILD_ID: {interaction.guild_id}')
 
         # Send HTTPS POST Request to Discord API with json payload embedded
         async with aiohttp.ClientSession(headers=self.auth_headers) as session:
@@ -113,6 +114,22 @@ class EventCreate(commands.Cog):
                 await session.close()
         
         await interaction.response.send_message(f"Event {name} created!")
+
+    @app_commands.command(name="temporary-mention", description="Create a test mention")
+    @app_commands.describe(role_name="Name of the event to create a mention for")
+    async def temporaryMention(self, interaction: discord.Interaction, role_name: str):
+        await interaction.guild.create_role(name=f'{role_name} Role', mentionable=True)
+        await interaction.response.send_message(f"Temporary mention created for {role_name}!")
+    
+    @commands.Cog.listener()
+    async def on_scheduled_event_user_add(self, event: discord.ScheduledEvent, user: discord.User):
+        print(f"{user.name} has joined the event {event.name}")
+        return
+    
+    @commands.Cog.listener()
+    async def on_scheduled_event_user_remove(self, event: discord.ScheduledEvent, user: discord.User):
+        print(f"{user.name} has left the event {event.name}")
+        return
 
 async def setup(bot):
     await bot.add_cog(EventCreate(bot))
